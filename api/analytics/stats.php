@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/response.php';
 require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/frequency.php';
 
 requireMethod('GET');
 $userId = requireAuth();
@@ -47,51 +48,35 @@ $aggregateRate = 0.0;
 
 foreach ($habits as $habit) {
     $habitId = (int) $habit['id'];
-    $dates = $logsByHabit[$habitId] ?? [];
-    $overallCompleted += count($dates);
+    $completedDates = $logsByHabit[$habitId] ?? [];
+    $dateSet = array_fill_keys($completedDates, true);
+    $dueDates = getDueDatesUntil($habit, $today);
+    $overallCompleted += count($completedDates);
 
-    $dateSet = array_fill_keys($dates, true);
     $currentStreak = 0;
-    $cursor = $today;
-
-    while (isset($dateSet[$cursor->format('Y-m-d')])) {
-        $currentStreak++;
-        $cursor = $cursor->modify('-1 day');
+    for ($index = count($dueDates) - 1; $index >= 0; $index -= 1) {
+        $dueDate = $dueDates[$index];
+        if (isset($dateSet[$dueDate])) {
+            $currentStreak++;
+            continue;
+        }
+        break;
     }
 
     $longestStreak = 0;
     $runningStreak = 0;
-    $previousDate = null;
-
-    foreach ($dates as $date) {
-        $currentDate = new DateTimeImmutable($date);
-
-        if ($previousDate === null || $previousDate->modify('+1 day')->format('Y-m-d') === $currentDate->format('Y-m-d')) {
+    foreach ($dueDates as $dueDate) {
+        if (isset($dateSet[$dueDate])) {
             $runningStreak++;
         } else {
-            $runningStreak = 1;
+            $runningStreak = 0;
         }
 
         $longestStreak = max($longestStreak, $runningStreak);
-        $previousDate = $currentDate;
     }
 
-    $createdDate = new DateTimeImmutable(substr((string) $habit['created_at'], 0, 10));
-    $daysTracked = max((int) $createdDate->diff($today)->format('%a') + 1, 1);
-    $expectedCount = $daysTracked;
-
-    if ($habit['frequency'] === 'weekly') {
-        $expectedCount = max((int) ceil($daysTracked / 7), 1);
-    } elseif ($habit['frequency'] === 'monthly') {
-        $expectedCount = max(
-            ((int) $today->format('Y') - (int) $createdDate->format('Y')) * 12
-            + ((int) $today->format('n') - (int) $createdDate->format('n'))
-            + 1,
-            1
-        );
-    }
-
-    $completionRate = round((count($dates) / $expectedCount) * 100, 2);
+    $expectedCount = max(count($dueDates), 1);
+    $completionRate = round((count($completedDates) / $expectedCount) * 100, 2);
     $aggregateRate += $completionRate;
 
     $stats[] = [
@@ -101,7 +86,8 @@ foreach ($habits as $habit) {
         'current_streak' => $currentStreak,
         'longest_streak' => $longestStreak,
         'completion_rate' => $completionRate,
-        'completed_logs' => count($dates),
+        'completed_logs' => count($completedDates),
+        'due_count' => count($dueDates),
     ];
 }
 

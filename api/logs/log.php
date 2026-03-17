@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/response.php';
 require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/frequency.php';
 
 requireMethod('POST');
 $userId = requireAuth();
@@ -24,14 +25,19 @@ if ($completed === null) {
 
 $pdo = getDB();
 
-$habitStmt = $pdo->prepare('SELECT id FROM habits WHERE id = :id AND user_id = :user_id LIMIT 1');
+$habitStmt = $pdo->prepare('SELECT id, frequency, created_at FROM habits WHERE id = :id AND user_id = :user_id LIMIT 1');
 $habitStmt->execute([
     'id' => $habitId,
     'user_id' => $userId,
 ]);
+$habit = $habitStmt->fetch();
 
-if (!$habitStmt->fetch()) {
+if (!$habit) {
     sendResponse(false, null, 'Habit not found.', 404);
+}
+
+if (!isHabitDueOnDate($habit, $logDate)) {
+    sendResponse(false, null, 'This habit is not scheduled for that date.', 400);
 }
 
 $stmt = $pdo->prepare(

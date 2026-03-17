@@ -1,4 +1,5 @@
 import { api } from './api.js';
+import { getFrequencyLabel, getLogForDate, isHabitDueOnDate } from './frequency.js';
 import { state, setState, subscribe } from './state.js';
 
 const habitList = document.getElementById('habitList');
@@ -17,10 +18,6 @@ function showMessage(text) {
     showMessage.timeoutId = window.setTimeout(() => {
         message.textContent = '';
     }, 2400);
-}
-
-function getTodayLog(habitId) {
-    return state.logs.find((log) => log.habit_id === habitId && log.date === state.selectedDate);
 }
 
 function renderStats(appState) {
@@ -46,8 +43,9 @@ function renderHabits(appState) {
     }
 
     habitList.innerHTML = appState.habits.map((habit) => {
-        const todayLog = getTodayLog(habit.id);
-        const isCompleted = Boolean(todayLog?.completed);
+        const habitLog = getLogForDate(habit, appState.logs, appState.selectedDate);
+        const isCompleted = Boolean(habitLog?.completed);
+        const isDueToday = isHabitDueOnDate(habit, appState.selectedDate);
         const stat = appState.stats.find((entry) => entry.habit_id === habit.id);
 
         return `
@@ -61,10 +59,11 @@ function renderHabits(appState) {
                         <span class="pill">${habit.frequency}</span>
                     </div>
                     <p>Current streak: <strong>${stat?.current_streak ?? 0}</strong> | Longest streak: <strong>${stat?.longest_streak ?? 0}</strong></p>
+                    <p>${isDueToday ? `Due ${getFrequencyLabel(habit, appState.selectedDate)}` : `Not due ${getFrequencyLabel(habit, appState.selectedDate)}`}</p>
                 </div>
                 <div class="habit-actions">
-                    <button class="toggle-button ${isCompleted ? 'completed' : ''}" data-action="toggle" data-id="${habit.id}">
-                        ${isCompleted ? 'Completed today' : 'Mark complete'}
+                    <button class="toggle-button ${isCompleted ? 'completed' : ''}" data-action="toggle" data-id="${habit.id}" ${isDueToday ? '' : 'disabled'}>
+                        ${isCompleted ? 'Completed' : (isDueToday ? 'Mark complete' : 'Not due')}
                     </button>
                     <button class="ghost-button" data-action="edit" data-id="${habit.id}">Edit</button>
                     <button class="ghost-button" data-action="delete" data-id="${habit.id}">Delete</button>
@@ -167,7 +166,13 @@ habitList.addEventListener('click', async (event) => {
         }
 
         if (action === 'toggle') {
-            const existing = getTodayLog(habitId);
+            const habit = state.habits.find((entry) => entry.id === habitId);
+            if (!habit || !isHabitDueOnDate(habit, state.selectedDate)) {
+                showMessage('This habit is not due today.');
+                return;
+            }
+
+            const existing = getLogForDate(habit, state.logs, state.selectedDate);
             await api.logHabit({
                 habit_id: habitId,
                 date: state.selectedDate,
