@@ -286,6 +286,12 @@ button:disabled {
     gap: 1rem;
 }
 
+.insight-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
 .stat-card,
 .habit-card {
     padding: 1.2rem;
@@ -306,6 +312,67 @@ button:disabled {
 .habit-list {
     display: grid;
     gap: 1rem;
+}
+
+.insight-card {
+    padding: 1.25rem;
+}
+
+.insight-stack,
+.insight-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.insight-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem 1.1rem;
+    border-radius: 18px;
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+}
+
+.insight-copy {
+    flex: 1;
+}
+
+.insight-copy h3,
+.insight-row h3 {
+    margin: 0 0 0.25rem;
+}
+
+.insight-copy p,
+.insight-row p {
+    margin: 0;
+    color: var(--muted);
+}
+
+.insight-metrics {
+    display: grid;
+    gap: 0.3rem;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.insight-metrics-wide {
+    min-width: 170px;
+}
+
+.progress-track {
+    margin-top: 0.8rem;
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(45, 31, 23, 0.08);
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(135deg, var(--success), #86b990);
 }
 
 .habit-card {
@@ -443,5 +510,15 @@ button:disabled {
     .calendar-cell {
         min-height: 92px;
         padding: 0.6rem;
+    }
+
+    .insight-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .insight-metrics {
+        text-align: left;
+        white-space: normal;
     }
 }

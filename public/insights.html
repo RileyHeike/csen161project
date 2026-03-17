@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HabitFlow | Insights</title>
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a class="brand-mark" href="./dashboard.html">HabitFlow</a>
+            <nav class="sidebar-nav">
+                <a class="nav-link" href="./dashboard.html">Dashboard</a>
+                <a class="nav-link" href="./calendar.html">Calendar</a>
+                <a class="nav-link active" href="./insights.html">Insights</a>
+            </nav>
+            <button id="logoutButton" class="ghost-button">Logout</button>
+        </aside>
+
+        <main class="main-content">
+            <header class="page-header">
+                <div>
+                    <p class="eyebrow">Progress View</p>
+                    <h1>Insights and trends</h1>
+                </div>
+            </header>
+
+            <section class="stats-grid" id="insightSummary"></section>
+
+            <section class="insight-grid">
+                <article class="card insight-card">
+                    <div class="section-heading">
+                        <h2>Standout Habits</h2>
+                        <p>Your strongest and weakest performers right now.</p>
+                    </div>
+                    <div id="highlightCards" class="insight-stack"></div>
+                </article>
+
+                <article class="card insight-card">
+                    <div class="section-heading">
+                        <h2>Streak Leaders</h2>
+                        <p>See which routines are carrying momentum.</p>
+                    </div>
+                    <div id="streakLeaders" class="insight-list"></div>
+                </article>
+            </section>
+
+            <section class="card insight-card">
+                <div class="section-heading">
+                    <h2>Habit Breakdown</h2>
+                    <p>Completion rate, due count, and streak data for every habit.</p>
+                </div>
+                <div id="habitInsightList" class="insight-list"></div>
+            </section>
+        </main>
+    </div>
+
+    <p id="insightsMessage" class="toast" aria-live="polite"></p>
+
+    <script type="module" src="../assets/js/insights.js"></script>
+</body>
+</html>
