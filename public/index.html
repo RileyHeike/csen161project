@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HabitFlow | Sign In</title>
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body class="auth-shell">
+    <main class="auth-layout">
+        <section class="hero-panel">
+            <p class="eyebrow">HabitFlow</p>
+            <h1>Build routines that actually stick.</h1>
+            <p class="hero-copy">Track daily wins, keep your streaks alive, and see your consistency across the month without leaving the page.</p>
+        </section>
+
+        <section class="card auth-card">
+            <div class="segmented-control" id="authTabs">
+                <button class="tab-button active" data-tab="login">Login</button>
+                <button class="tab-button" data-tab="register">Register</button>
+            </div>
+
+            <form id="loginForm" class="auth-form">
+                <h2>Welcome back</h2>
+                <label>
+                    <span>Email or username</span>
+                    <input type="text" name="identifier" required>
+                </label>
+                <label>
+                    <span>Password</span>
+                    <input type="password" name="password" required>
+                </label>
+                <button type="submit" class="primary-button">Login</button>
+            </form>
+
+            <form id="registerForm" class="auth-form hidden">
+                <h2>Create account</h2>
+                <label>
+                    <span>Username</span>
+                    <input type="text" name="username" required>
+                </label>
+                <label>
+                    <span>Email</span>
+                    <input type="email" name="email" required>
+                </label>
+                <label>
+                    <span>Password</span>
+                    <input type="password" name="password" minlength="8" required>
+                </label>
+                <button type="submit" class="primary-button">Register</button>
+            </form>
+
+            <p id="authMessage" class="status-message" aria-live="polite"></p>
+        </section>
+    </main>
+
+    <script type="module" src="../assets/js/auth.js"></script>
+</body>
+</html>

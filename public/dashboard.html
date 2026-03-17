@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HabitFlow | Dashboard</title>
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a class="brand-mark" href="./dashboard.html">HabitFlow</a>
+            <nav class="sidebar-nav">
+                <a class="nav-link active" href="./dashboard.html">Dashboard</a>
+                <a class="nav-link" href="./calendar.html">Calendar</a>
+            </nav>
+            <button id="logoutButton" class="ghost-button">Logout</button>
+        </aside>
+
+        <main class="main-content">
+            <header class="page-header">
+                <div>
+                    <p class="eyebrow">Today</p>
+                    <h1>Your habits at a glance</h1>
+                </div>
+                <button id="openHabitModal" class="primary-button">Add Habit</button>
+            </header>
+
+            <section class="stats-grid" id="statsGrid"></section>
+
+            <section class="card">
+                <div class="section-heading">
+                    <h2>Habit List</h2>
+                    <p>Toggle today’s progress and keep everything current.</p>
+                </div>
+                <div id="habitList" class="habit-list"></div>
+            </section>
+        </main>
+    </div>
+
+    <dialog id="habitDialog" class="modal">
+        <form method="dialog" class="modal-card" id="habitForm">
+            <div class="section-heading">
+                <h2 id="habitFormTitle">Create Habit</h2>
+                <p>Define the routine you want to track.</p>
+            </div>
+            <input type="hidden" name="id">
+            <label>
+                <span>Name</span>
+                <input type="text" name="name" required>
+            </label>
+            <label>
+                <span>Description</span>
+                <textarea name="description" rows="3"></textarea>
+            </label>
+            <label>
+                <span>Frequency</span>
+                <select name="frequency">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                </select>
+            </label>
+            <div class="modal-actions">
+                <button type="button" id="cancelHabitDialog" class="ghost-button">Cancel</button>
+                <button type="submit" class="primary-button">Save Habit</button>
+            </div>
+        </form>
+    </dialog>
+
+    <p id="dashboardMessage" class="toast" aria-live="polite"></p>
+
+    <script type="module" src="../assets/js/dashboard.js"></script>
+</body>
+</html>

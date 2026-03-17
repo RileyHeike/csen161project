@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HabitFlow | Calendar</title>
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a class="brand-mark" href="./dashboard.html">HabitFlow</a>
+            <nav class="sidebar-nav">
+                <a class="nav-link" href="./dashboard.html">Dashboard</a>
+                <a class="nav-link active" href="./calendar.html">Calendar</a>
+            </nav>
+            <button id="logoutButton" class="ghost-button">Logout</button>
+        </aside>
+
+        <main class="main-content">
+            <header class="page-header">
+                <div>
+                    <p class="eyebrow">Monthly View</p>
+                    <h1>Completion calendar</h1>
+                </div>
+                <div class="calendar-controls">
+                    <button id="previousMonth" class="ghost-button">Previous</button>
+                    <strong id="calendarTitle"></strong>
+                    <button id="nextMonth" class="ghost-button">Next</button>
+                </div>
+            </header>
+
+            <section class="card">
+                <div class="calendar-grid weekday-row" id="weekdayRow"></div>
+                <div class="calendar-grid" id="calendarGrid"></div>
+            </section>
+        </main>
+    </div>
+
+    <p id="calendarMessage" class="toast" aria-live="polite"></p>
+
+    <script type="module" src="../assets/js/calendar.js"></script>
+</body>
+</html>
