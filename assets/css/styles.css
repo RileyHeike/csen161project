@@ -344,6 +344,12 @@ button:disabled {
     padding: 1.4rem;
 }
 
+.day-modal {
+    width: min(92vw, 720px);
+    max-height: min(80vh, 760px);
+    overflow: auto;
+}
+
 .modal-actions,
 .calendar-controls {
     display: flex;
@@ -381,6 +387,7 @@ button:disabled {
     display: grid;
     align-content: start;
     gap: 0.45rem;
+    cursor: pointer;
 }
 
 .calendar-cell.muted {

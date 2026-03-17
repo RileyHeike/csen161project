@@ -37,6 +37,19 @@
         </main>
     </div>
 
+    <dialog id="dayDialog" class="modal">
+        <div class="modal-card day-modal">
+            <div class="section-heading">
+                <div>
+                    <h2 id="dayDialogTitle">Day Details</h2>
+                    <p id="dayDialogSubtitle">View and update habits for this day.</p>
+                </div>
+                <button type="button" id="closeDayDialog" class="ghost-button">Close</button>
+            </div>
+            <div id="dayHabitList" class="habit-list"></div>
+        </div>
+    </dialog>
+
     <p id="calendarMessage" class="toast" aria-live="polite"></p>
 
     <script type="module" src="../assets/js/calendar.js"></script>
