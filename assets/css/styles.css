@@ -9,8 +9,9 @@
     --accent-dark: #8f3c1d;
     --accent-soft: #f6d1bf;
     --success: #3f7d4a;
-    --shadow: 0 18px 40px rgba(59, 35, 17, 0.12);
-    --radius: 22px;
+    --shadow: 0 18px 40px rgba(59, 35, 17, 0.08), 0 4px 12px rgba(59, 35, 17, 0.04);
+    --shadow-hover: 0 24px 48px rgba(59, 35, 17, 0.14), 0 8px 16px rgba(59, 35, 17, 0.06);
+    --radius: 24px;
     --font-display: "Avenir Next", "Segoe UI", sans-serif;
     --font-body: "Trebuchet MS", "Segoe UI", sans-serif;
 }
@@ -71,6 +72,19 @@ button {
     border: 1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+}
+
+.hero-panel:hover,
+.card:hover,
+.modal-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+    border-color: rgba(83, 56, 34, 0.22);
+}
+
+.card {
+    padding: 1.5rem;
 }
 
 .hero-panel {
@@ -299,6 +313,14 @@ button:disabled {
     background: var(--surface);
     border: 1px solid var(--border);
     box-shadow: var(--shadow);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+}
+
+.stat-card:hover,
+.habit-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+    border-color: rgba(83, 56, 34, 0.22);
 }
 
 .stat-card {
@@ -501,10 +523,20 @@ button:disabled {
     align-content: start;
     gap: 0.45rem;
     cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+}
+
+.calendar-cell:not(.muted):hover {
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: var(--shadow-hover);
+    border-color: rgba(83, 56, 34, 0.22);
+    z-index: 2;
+    position: relative;
 }
 
 .calendar-cell.muted {
     opacity: 0.45;
+    cursor: default;
 }
 
 .calendar-cell.today {
