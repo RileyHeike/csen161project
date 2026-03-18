@@ -2,17 +2,17 @@ import { api } from './api.js';
 import { getFrequencyLabel, getLogForDate, isHabitDueOnDate } from './frequency.js';
 import { state, setState, subscribe } from './state.js';
 
-const habitList = document.getElementById('habitList');
+const todayHabitList = document.getElementById('todayHabitList');
 const statsGrid = document.getElementById('statsGrid');
+const graph = document.getElementById('dashboardGraph');
 const message = document.getElementById('dashboardMessage');
-const dialog = document.getElementById('habitDialog');
-const openDialogButton = document.getElementById('openHabitModal');
-const cancelDialogButton = document.getElementById('cancelHabitDialog');
-const habitForm = document.getElementById('habitForm');
 const logoutButton = document.getElementById('logoutButton');
-const habitFormTitle = document.getElementById('habitFormTitle');
 
 function showMessage(text) {
+    if (!message) {
+        return;
+    }
+
     message.textContent = text;
     window.clearTimeout(showMessage.timeoutId);
     showMessage.timeoutId = window.setTimeout(() => {
@@ -21,11 +21,23 @@ function showMessage(text) {
 }
 
 function renderStats(appState) {
+    if (!statsGrid) {
+        return;
+    }
+
+    const dueToday = appState.habits.filter((habit) => isHabitDueOnDate(habit, appState.selectedDate)).length;
+    const completedToday = appState.habits.filter((habit) => {
+        if (!isHabitDueOnDate(habit, appState.selectedDate)) {
+            return false;
+        }
+        return Boolean(getLogForDate(habit, appState.logs, appState.selectedDate)?.completed);
+    }).length;
+
     const cards = [
-        ['Habits', appState.summary?.habit_count ?? appState.habits.length],
-        ['Logs', appState.summary?.completed_logs ?? 0],
-        ['Rate', `${Math.round(appState.summary?.completion_rate ?? 0)}%`],
-        ['Date', appState.selectedDate],
+        ['Due today', dueToday],
+        ['Completed today', completedToday],
+        ['Overall rate', `${Math.round(appState.summary?.completion_rate ?? 0)}%`],
+        ['Tracked habits', appState.summary?.habit_count ?? appState.habits.length],
     ];
 
     statsGrid.innerHTML = cards.map(([label, value]) => `
@@ -36,62 +48,91 @@ function renderStats(appState) {
     `).join('');
 }
 
-function renderHabits(appState) {
-    if (appState.habits.length === 0) {
-        habitList.innerHTML = '<article class="habit-card"><div><h3>No habits yet</h3><p>Create your first habit to start tracking.</p></div></article>';
+function renderTodayHabits(appState) {
+    if (!todayHabitList) {
         return;
     }
 
-    habitList.innerHTML = appState.habits.map((habit) => {
-        const habitLog = getLogForDate(habit, appState.logs, appState.selectedDate);
-        const isCompleted = Boolean(habitLog?.completed);
-        const isDueToday = isHabitDueOnDate(habit, appState.selectedDate);
+    const dueHabits = appState.habits.filter((habit) => isHabitDueOnDate(habit, appState.selectedDate));
+
+    if (dueHabits.length === 0) {
+        todayHabitList.innerHTML = '<article class="habit-card"><div><h3>No habits due today</h3><p>Enjoy the lighter day, or head to Habits to plan ahead.</p></div></article>';
+        return;
+    }
+
+    todayHabitList.innerHTML = dueHabits.map((habit) => {
+        const log = getLogForDate(habit, appState.logs, appState.selectedDate);
         const stat = appState.stats.find((entry) => entry.habit_id === habit.id);
+        const completed = Boolean(log?.completed);
 
         return `
-            <article class="habit-card">
+            <article class="habit-card habit-card-compact">
                 <div>
-                    <div class="section-heading">
-                        <div>
-                            <h3>${habit.name}</h3>
-                            <p>${habit.description || 'No description yet.'}</p>
-                        </div>
-                        <span class="pill">${habit.frequency}</span>
-                    </div>
-                    <p>Current streak: <strong>${stat?.current_streak ?? 0}</strong> | Longest streak: <strong>${stat?.longest_streak ?? 0}</strong></p>
-                    <p>${isDueToday ? `Due ${getFrequencyLabel(habit, appState.selectedDate)}` : `Not due ${getFrequencyLabel(habit, appState.selectedDate)}`}</p>
+                    <h3>${habit.name}</h3>
+                    <p>${getFrequencyLabel(habit, appState.selectedDate)} | Current streak: <strong>${stat?.current_streak ?? 0}</strong></p>
                 </div>
                 <div class="habit-actions">
-                    <button class="toggle-button ${isCompleted ? 'completed' : ''}" data-action="toggle" data-id="${habit.id}" ${isDueToday ? '' : 'disabled'}>
-                        ${isCompleted ? 'Completed' : (isDueToday ? 'Mark complete' : 'Not due')}
+                    <button class="toggle-button ${completed ? 'completed' : ''}" data-id="${habit.id}">
+                        ${completed ? 'Set incomplete' : 'Set complete'}
                     </button>
-                    <button class="ghost-button" data-action="edit" data-id="${habit.id}">Edit</button>
-                    <button class="ghost-button" data-action="delete" data-id="${habit.id}">Delete</button>
                 </div>
             </article>
         `;
     }).join('');
 }
 
-function openCreateDialog() {
-    habitForm.reset();
-    habitForm.elements.id.value = '';
-    habitFormTitle.textContent = 'Create Habit';
-    dialog.showModal();
+function getDailyBuckets(appState) {
+    const buckets = [];
+    const today = new Date(`${appState.selectedDate}T00:00:00`);
+
+    for (let offset = 6; offset >= 0; offset -= 1) {
+        const day = new Date(today);
+        day.setDate(today.getDate() - offset);
+        const dateString = day.toISOString().slice(0, 10);
+
+        let due = 0;
+        let completed = 0;
+
+        appState.habits.forEach((habit) => {
+            if (!isHabitDueOnDate(habit, dateString)) {
+                return;
+            }
+
+            due += 1;
+            if (getLogForDate(habit, appState.logs, dateString)?.completed) {
+                completed += 1;
+            }
+        });
+
+        buckets.push({
+            label: day.toLocaleDateString(undefined, { weekday: 'short' }),
+            rate: due > 0 ? Math.round((completed / due) * 100) : 0,
+        });
+    }
+
+    return buckets;
 }
 
-function openEditDialog(habitId) {
-    const habit = state.habits.find((entry) => entry.id === habitId);
-    if (!habit) {
+function renderGraph(appState) {
+    if (!graph) {
         return;
     }
 
-    habitFormTitle.textContent = 'Edit Habit';
-    habitForm.elements.id.value = habit.id;
-    habitForm.elements.name.value = habit.name;
-    habitForm.elements.description.value = habit.description || '';
-    habitForm.elements.frequency.value = habit.frequency;
-    dialog.showModal();
+    const buckets = getDailyBuckets(appState);
+
+    graph.innerHTML = `
+        <div class="chart-bars">
+            ${buckets.map((bucket) => `
+                <div class="chart-bar-group">
+                    <div class="chart-bar-track">
+                        <div class="chart-bar-fill" style="height: ${Math.max(bucket.rate, 6)}%"></div>
+                    </div>
+                    <strong>${bucket.rate}%</strong>
+                    <span>${bucket.label}</span>
+                </div>
+            `).join('')}
+        </div>
+    `;
 }
 
 async function refreshDashboard() {
@@ -117,87 +158,49 @@ async function refreshDashboard() {
     }
 }
 
-openDialogButton.addEventListener('click', openCreateDialog);
-cancelDialogButton.addEventListener('click', () => dialog.close());
-
-habitForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const formData = new FormData(habitForm);
-    const payload = {
-        id: Number(formData.get('id') || 0),
-        name: formData.get('name'),
-        description: formData.get('description'),
-        frequency: formData.get('frequency'),
-    };
-
-    try {
-        if (payload.id > 0) {
-            await api.updateHabit(payload);
-            showMessage('Habit updated.');
-        } else {
-            await api.createHabit(payload);
-            showMessage('Habit created.');
-        }
-        dialog.close();
-        await refreshDashboard();
-    } catch (error) {
-        showMessage(error.message);
-    }
-});
-
-habitList.addEventListener('click', async (event) => {
-    const actionButton = event.target.closest('button[data-action]');
-    if (!actionButton) {
-        return;
-    }
-
-    const habitId = Number(actionButton.dataset.id);
-    const action = actionButton.dataset.action;
-
-    try {
-        if (action === 'edit') {
-            openEditDialog(habitId);
+if (todayHabitList) {
+    todayHabitList.addEventListener('click', async (event) => {
+        const button = event.target.closest('button[data-id]');
+        if (!button) {
             return;
         }
 
-        if (action === 'delete') {
-            await api.deleteHabit(habitId);
-            showMessage('Habit deleted.');
+        const habitId = Number(button.dataset.id);
+        const habit = state.habits.find((entry) => entry.id === habitId);
+        if (!habit) {
+            return;
         }
 
-        if (action === 'toggle') {
-            const habit = state.habits.find((entry) => entry.id === habitId);
-            if (!habit || !isHabitDueOnDate(habit, state.selectedDate)) {
-                showMessage('This habit is not due today.');
-                return;
-            }
+        const existing = getLogForDate(habit, state.logs, state.selectedDate);
 
-            const existing = getLogForDate(habit, state.logs, state.selectedDate);
+        try {
             await api.logHabit({
                 habit_id: habitId,
                 date: state.selectedDate,
                 completed: !(existing?.completed ?? false),
             });
-            showMessage('Progress updated.');
+            showMessage('Today updated.');
+            await refreshDashboard();
+        } catch (error) {
+            showMessage(error.message);
         }
+    });
+}
 
-        await refreshDashboard();
-    } catch (error) {
-        showMessage(error.message);
-    }
-});
-
-logoutButton.addEventListener('click', async () => {
-    try {
-        await api.logout();
-    } finally {
-        window.location.href = './index.html';
-    }
-});
+if (logoutButton) {
+    logoutButton.addEventListener('click', async () => {
+        try {
+            await api.logout();
+        } finally {
+            window.location.href = './index.html';
+        }
+    });
+}
 
 subscribe((appState) => {
     renderStats(appState);
-    renderHabits(appState);
+    renderTodayHabits(appState);
+    renderGraph(appState);
 });
 
 refreshDashboard();

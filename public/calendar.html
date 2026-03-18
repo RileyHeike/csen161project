@@ -4,16 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HabitFlow | Calendar</title>
-    <link rel="stylesheet" href="../assets/css/styles.css">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="stylesheet" href="../assets/css/styles.css?v=5">
 </head>
 <body>
     <div class="app-shell">
         <aside class="sidebar">
             <a class="brand-mark" href="./dashboard.html">HabitFlow</a>
             <nav class="sidebar-nav">
-                <a class="nav-link" href="./dashboard.html">Dashboard</a>
-                <a class="nav-link active" href="./calendar.html">Calendar</a>
-                <a class="nav-link" href="./insights.html">Insights</a>
+                <a class="nav-link" href="./dashboard.html?v=5">Dashboard</a>
+                <a class="nav-link" href="./habits.html?v=5">Habits</a>
+                <a class="nav-link active" href="./calendar.html?v=5">Calendar</a>
+                <a class="nav-link" href="./insights.html?v=5">Insights</a>
+                <a class="nav-link" href="./profile.html?v=5">Profile</a>
             </nav>
             <button id="logoutButton" class="ghost-button">Logout</button>
         </aside>
@@ -53,6 +58,6 @@
 
     <p id="calendarMessage" class="toast" aria-live="polite"></p>
 
-    <script type="module" src="../assets/js/calendar.js"></script>
+    <script type="module" src="../assets/js/calendar.js?v=5"></script>
 </body>
 </html>

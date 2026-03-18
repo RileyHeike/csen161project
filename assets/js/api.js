@@ -43,4 +43,5 @@ export const api = {
     getLogs: (params = '') => request(`/logs/list.php${params}`),
     logHabit: (body) => request('/logs/log.php', { method: 'POST', body }),
     getStats: () => request('/analytics/stats.php'),
+    getProfile: () => request('/profile/get.php'),
 };

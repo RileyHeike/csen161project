@@ -314,6 +314,10 @@ button:disabled {
     gap: 1rem;
 }
 
+.habit-card-compact {
+    align-items: center;
+}
+
 .insight-card {
     padding: 1.25rem;
 }
@@ -373,6 +377,48 @@ button:disabled {
     height: 100%;
     border-radius: inherit;
     background: linear-gradient(135deg, var(--success), #86b990);
+}
+
+.chart-card {
+    min-height: 320px;
+    display: grid;
+    align-items: end;
+}
+
+.chart-bars {
+    min-height: 260px;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.9rem;
+    align-items: end;
+}
+
+.chart-bar-group {
+    display: grid;
+    gap: 0.55rem;
+    justify-items: center;
+}
+
+.chart-bar-track {
+    width: 100%;
+    max-width: 56px;
+    height: 180px;
+    display: flex;
+    align-items: end;
+    padding: 0.35rem;
+    border-radius: 999px;
+    background: rgba(45, 31, 23, 0.08);
+}
+
+.chart-bar-fill {
+    width: 100%;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--accent), var(--success));
+}
+
+.chart-bar-group span {
+    color: var(--muted);
+    font-size: 0.85rem;
 }
 
 .habit-card {
@@ -510,6 +556,10 @@ button:disabled {
     .calendar-cell {
         min-height: 92px;
         padding: 0.6rem;
+    }
+
+    .chart-bars {
+        gap: 0.55rem;
     }
 
     .insight-row {
